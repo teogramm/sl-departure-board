@@ -32,7 +32,9 @@ void SLDisplay::main_loop() {
                 display.clearDisplay();
                 display.drawUTF8(0,20, "Sleeping");
                 display.updateDisplay();
+                display.setPowerSave(true);
                 std::this_thread::sleep_for(std::chrono::minutes(5));
+                display.setPowerSave(false);
                 continue;
             }
             auto time = std::chrono::local_seconds();

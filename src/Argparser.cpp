@@ -59,6 +59,7 @@ SLDisplay::Config Argparser::parse_arguments(int argc, char **argv) {
 }
 
 bool Argparser::TimeVerifier::check(const std::basic_string<char> &value) const {
+    // TODO: Check that start <= end
     auto reg = std::regex{"(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]-(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]"};
     return std::regex_match(value, reg);
 }

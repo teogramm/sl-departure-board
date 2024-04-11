@@ -1,17 +1,16 @@
-//
-// Created by theodore on 06/04/24.
-//
-
 #ifndef SL_PI_CPP_U8G2_SSD1322_NHD_256X64_F_8080_H
 #define SL_PI_CPP_U8G2_SSD1322_NHD_256X64_F_8080_H
 
 #include <iostream>
 #include <cstdio>
-#include "U8g2lib.h"
-#include "u8g2.h"
-#include "u8x8.h"
-#include "wiringPi.h"
+#include <U8g2lib.h>
+#include <u8g2.h>
+#include <u8x8.h>
+#include <wiringPi.h>
 
+/**
+ * Wrapper class for the SSD1322 display in 8080 mode which uses Raspberry Pi GPIO for communication.
+ */
 class U8G2_SSD1322_NHD_256X64_F_8080_RPI : public U8G2 {
 public:
     U8G2_SSD1322_NHD_256X64_F_8080_RPI(const u8g2_cb_t *rotation, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
@@ -22,18 +21,23 @@ public:
     }
 
 private:
+    /**
+    * Implements the u8x8 communication interface using Raspberry Pi GPIO.
+     * Menu functions are not implemented.
+     * @param u8x8 u8x8 struct with pin information
+     * @param msg action to be performed (transmit message or delay)
+     * @param arg_int byte to be transmitted or information about delay
+     * @see https://github.com/olikraus/u8g2/wiki/Porting-to-new-MCU-platform
+     */
     static uint8_t u8x8_gpio_and_delay_rpi_8080(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
         switch (msg) {
             case U8X8_MSG_GPIO_AND_DELAY_INIT:    // called once during init phase of u8g2/u8x8
-//                pinMode(rpi_hal.rd, OUTPUT);
                 pinMode(u8x8_GetPinValue(u8x8, U8X8_PIN_E), OUTPUT);
                 pinMode(u8x8_GetPinValue(u8x8, U8X8_PIN_CS), OUTPUT);
                 pinMode(u8x8_GetPinValue(u8x8, U8X8_PIN_DC), OUTPUT);
                 for (int i = U8X8_PIN_D0; i <= U8X8_PIN_D7; i++) {
                     pinMode(u8x8_GetPinValue(u8x8, i), OUTPUT);
                 }
-//                pinMode(16, OUTPUT);
-//                digitalWrite(rpi_hal.rd, HIGH);
 
                 break;
             case U8X8_MSG_DELAY_NANO:
@@ -86,4 +90,4 @@ private:
     }
 };
 
-#endif //SL_PI_CPP_U8G2_SSD1322_NHD_256X64_F_8080_H
+#endif
