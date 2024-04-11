@@ -1,5 +1,3 @@
-# Have CMake find our pthreads library within our toolchain (required for this library)
-
 set(WPI_VERSION 3.2)
 project(wiringPi LANGUAGES C VERSION ${WPI_VERSION})
 
@@ -30,7 +28,7 @@ include(GNUInstallDirs)
 # https://blog.vito.nyc/posts/cmake-pkg/
 
 # Create our library target
-add_library(wiringPi STATIC)
+add_library(wiringPi)
 #
 target_sources(wiringPi PRIVATE ${WPI_SRC_FILES})
 target_sources(wiringPi PUBLIC
