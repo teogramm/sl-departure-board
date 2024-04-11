@@ -13,7 +13,10 @@ file(GLOB SL_HEADERS src/*.h)
 
 add_library(sl STATIC)
 target_compile_features(sl PUBLIC cxx_std_20)
+
 target_sources(sl PRIVATE ${SL_SOURCES})
 target_sources(sl PUBLIC FILE_SET HEADERS BASE_DIRS include)
+target_include_directories(sl PRIVATE include/sl)
+
 target_link_libraries(sl PUBLIC cpr::cpr)
 target_link_libraries(sl PRIVATE nlohmann_json::nlohmann_json)

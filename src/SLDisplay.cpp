@@ -1,4 +1,5 @@
 #include "SLDisplay.h"
+#include <sl/Data.h>
 #include <chrono>
 #include <ctime>
 #include <thread>
@@ -104,14 +105,14 @@ int SLDisplay::get_total_scroll_size(int n_departures, std::vector<std::string> 
     return size;
 }
 
-std::string SLDisplay::line_and_dest_string(Departure &departure) {
+std::string SLDisplay::line_and_dest_string(SL::Departure &departure) {
     auto str = std::string(departure.line);
     str += " ";
     str.append(departure.destination);
     return str;
 }
 
-void SLDisplay::draw_departure(Departure &departure, int x_pos, int y_pos) {
+void SLDisplay::draw_departure(SL::Departure &departure, int x_pos, int y_pos) {
     auto line_and_dest = line_and_dest_string(departure);
     display.drawUTF8(x_pos, y_pos, line_and_dest.c_str());
     display.drawUTF8(x_pos + display.getWidth() - display.getStrWidth(departure.arrival.c_str()),

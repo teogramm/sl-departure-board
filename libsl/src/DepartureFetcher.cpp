@@ -1,15 +1,16 @@
 #include <iostream>
 #include "sl/DepartureFetcher.h"
+#include "Data.h"
 #include <optional>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-DepartureFetcher::DepartureFetcher() {
+SL::DepartureFetcher::DepartureFetcher() {
     this->session = create_session();
 }
 
-cpr::Session DepartureFetcher::create_session() {
+cpr::Session SL::DepartureFetcher::create_session() {
     auto session = cpr::Session();
     session.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
     // TODO: Fix this
@@ -17,8 +18,8 @@ cpr::Session DepartureFetcher::create_session() {
     return session;
 }
 
-StopStatus
-DepartureFetcher::fetch_departures(int siteId, std::optional<int> direction, std::optional<Mode> mode) {
+SL::StopStatus
+SL::DepartureFetcher::fetch_departures(int siteId, std::optional<int> direction, std::optional<Mode> mode) {
 //    auto urlStr = std::format(DepartureFetcher::REQUEST_URL, std::to_string(siteId));
     auto urlStr = assemble_url(siteId);
     auto params = cpr::Parameters();
@@ -51,7 +52,7 @@ std::vector<std::string> get_disruptions(nlohmann::json& response){
     return messages;
 }
 
-std::tuple<std::vector<Departure>,std::vector<std::string>> DepartureFetcher::response_to_dep_list(std::string &response) {
+std::tuple<std::vector<SL::Departure>,std::vector<std::string>> SL::DepartureFetcher::response_to_dep_list(std::string &response) {
     auto departures = std::vector<Departure>{};
     auto resp_json = json::parse(response);
     for (auto dep: resp_json["departures"]) {
@@ -66,7 +67,7 @@ std::tuple<std::vector<Departure>,std::vector<std::string>> DepartureFetcher::re
     return std::make_tuple(departures, get_disruptions(resp_json));
 }
 
-std::string DepartureFetcher::mode_to_string(Mode m) {
+std::string SL::DepartureFetcher::mode_to_string(Mode m) {
     switch (m) {
         case Mode::BUS:
             return "BUS";
@@ -86,7 +87,7 @@ std::string DepartureFetcher::mode_to_string(Mode m) {
     return "";
 }
 
-std::string DepartureFetcher::assemble_url(int site_id) {
+std::string SL::DepartureFetcher::assemble_url(int site_id) {
     auto url = std::string ("https://transport.integration.sl.se/v1/sites/");
     url.append(std::to_string(site_id));
     url.append("/departures");

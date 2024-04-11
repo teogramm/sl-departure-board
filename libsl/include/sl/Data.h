@@ -1,17 +1,29 @@
-#ifndef WIRINGPI_DATA_H
-#define WIRINGPI_DATA_H
+#ifndef DATA_H
+#define DATA_H
+
+#include "cpr/cpr.h"
 #include <string>
 #include <vector>
 
-struct Departure{
-    std::string line;
-    std::string destination;
-    std::string arrival;
-};
+namespace SL {
+    enum class Mode{
+        BUS,
+        TRAM,
+        METRO,
+        TRAIN,
+        FERRY,
+        SHIP,
+        TAXI
+    };
+    struct Departure{
+        std::string line;
+        std::string destination;
+        std::string arrival;
+    };
+    struct StopStatus{
+        std::vector<Departure> departures;
+        std::vector<std::string> deviations;
+    };
+}
 
-struct StopStatus{
-    std::vector<Departure> departures;
-    std::vector<std::string> deviations;
-};
-
-#endif //WIRINGPI_DATA_H
+#endif //DATA_H
