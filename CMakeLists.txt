@@ -9,7 +9,7 @@ set(BUILD_SHARED_LIBS OFF)
 
 include(GetWiringPi)
 
-message("Getting u8g2")
+message(STATUS "Getting u8g2")
 set(u8g2_patch git apply ${CMAKE_SOURCE_DIR}/patches/u8g2.patch)
 FetchContent_Declare(
         u8g2
@@ -21,10 +21,11 @@ FetchContent_MakeAvailable(u8g2)
 
 set(TCLAP_VERSION 1.4.0-rc1)
 
+message(STATUS "Getting TCLAP")
 FetchContent_Declare(
         tclap
-        URL https://downloads.sourceforge.net/project/tclap/tclap-${TCLAP_VERSION}.tar.bz2
-        URL_HASH MD5=3e669714a4dba6e5451bb401bb4e3d54
+        GIT_REPOSITORY https://git.code.sf.net/p/tclap/code tclap-code
+        GIT_TAG 1.4
 )
 FetchContent_MakeAvailable(tclap)
 

@@ -1,5 +1,5 @@
 set(WPI_VERSION 3.2)
-project(wiringPi LANGUAGES C VERSION ${WPI_VERSION})
+#project(wiringPi LANGUAGES C VERSION ${WPI_VERSION})
 
 
 set(wpi_patch git apply ${CMAKE_SOURCE_DIR}/patches/wiringpi.patch)

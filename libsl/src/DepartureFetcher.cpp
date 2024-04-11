@@ -1,8 +1,8 @@
 #include <iostream>
-#include "sl/DepartureFetcher.h"
-#include "Data.h"
 #include <optional>
 #include <nlohmann/json.hpp>
+
+#include "DepartureFetcher.h"
 
 using json = nlohmann::json;
 

@@ -1,12 +1,13 @@
-#ifndef DATA_H
-#define DATA_H
+#ifndef SL_DATA_H
+#define SL_DATA_H
 
-#include "cpr/cpr.h"
+#include <cpr/cpr.h>
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace SL {
-    enum class Mode{
+    enum class Mode {
         BUS,
         TRAM,
         METRO,
@@ -15,12 +16,16 @@ namespace SL {
         SHIP,
         TAXI
     };
-    struct Departure{
+
+    std::optional<Mode> string_to_mode(const std::string &mode);
+
+    struct Departure {
         std::string line;
         std::string destination;
         std::string arrival;
     };
-    struct StopStatus{
+
+    struct StopStatus {
         std::vector<Departure> departures;
         std::vector<std::string> deviations;
     };

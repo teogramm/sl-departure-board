@@ -2,7 +2,7 @@
 #ifndef DEPARTUREFETCHER_H
 #define DEPARTUREFETCHER_H
 #include <string>
-#include "cpr/cpr.h"
+#include <cpr/cpr.h>
 #include "Data.h"
 
 namespace SL {
