@@ -6,7 +6,8 @@
 #include <iostream>
 
 SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config& config) :
-        display(display), site_id(config.site_id), update_seconds(config.update_seconds) {
+        display(display), site_id(config.site_id), update_seconds(config.update_seconds),
+        direction(config.direction_code), mode(config.mode){
     stop_status = departure_fetcher.fetch_departures(site_id, direction, mode);
 
     last_update = std::chrono::steady_clock::now();
