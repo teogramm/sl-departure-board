@@ -4,10 +4,10 @@
 #include <thread>
 #include <iostream>
 
-SLDisplay::SLDisplay(U8G2 &display, int site_id, std::optional<int> direction, std::optional<Mode> mode, int gap) :
-        display(display), site_id(site_id), direction(direction), mode(mode), scroll_gap_px(gap) {
-    update_seconds = 60;
+SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config& config) :
+        display(display), site_id(config.site_id), update_seconds(config.update_seconds) {
     stop_status = departure_fetcher.fetch_departures(site_id, direction, mode);
+
     last_update = std::chrono::steady_clock::now();
 }
 
@@ -128,11 +128,14 @@ void SLDisplay::update_data() {
 }
 
 bool SLDisplay::should_sleep() {
-    auto now = time(nullptr);
-    auto *local = localtime(&now);
-    char buff[sizeof("hh:mm")];
-    strftime(buff, sizeof(buff), "%H:%M", local);
-    auto now_str = std::string(buff);
-    return (now_str >= time_lower_limit) && (now_str <= time_upper_limit);
+    if(sleep_times) {
+        auto now = time(nullptr);
+        auto *local = localtime(&now);
+        char buff[sizeof("hh:mm")];
+        strftime(buff, sizeof(buff), "%H:%M", local);
+        auto now_str = std::string(buff);
+        return (now_str >= std::get<0>(sleep_times.value())) && (now_str <= std::get<1>(sleep_times.value()));
+    }else
+        return false;
 }
 

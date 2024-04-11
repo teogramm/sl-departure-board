@@ -35,7 +35,9 @@ int main() {
     pi.setFlipMode(1);
     pi.setFont(esseltub);
 
-    auto display = SLDisplay(pi, siteid, 1, Mode::METRO);
+    auto display_config = SLDisplay::Config(1981, 1, Mode::METRO);
+
+    auto display = SLDisplay(pi, display_config);
     display.main_loop();
 
     return 0;
