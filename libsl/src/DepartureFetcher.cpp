@@ -24,7 +24,7 @@ SL::DepartureFetcher::fetch_departures(int siteId, std::optional<int> direction,
     auto urlStr = assemble_url(siteId);
     auto params = cpr::Parameters();
     if(mode.has_value()){
-        auto mode_str = mode_to_string(mode.value());
+        auto mode_str = SL::mode_to_string(mode.value());
         params.Add(cpr::Parameter("transport", mode_str));
     }
     if(direction.has_value()){
@@ -65,26 +65,6 @@ std::tuple<std::vector<SL::Departure>,std::vector<std::string>> SL::DepartureFet
         departures.emplace_back(line, dest, arrival);
     }
     return std::make_tuple(departures, get_disruptions(resp_json));
-}
-
-std::string SL::DepartureFetcher::mode_to_string(Mode m) {
-    switch (m) {
-        case Mode::BUS:
-            return "BUS";
-        case Mode::TRAM:
-            return "TRAM";
-        case Mode::METRO:
-            return "METRO";
-        case Mode::TRAIN:
-            return "TRAIN";
-        case Mode::FERRY:
-            return "FERRY";
-        case Mode::SHIP:
-            return "SHIP";
-        case Mode::TAXI:
-            return "TAXI";
-    }
-    return "";
 }
 
 std::string SL::DepartureFetcher::assemble_url(int site_id) {

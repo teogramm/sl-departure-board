@@ -4,16 +4,18 @@
 #include <ctime>
 #include <thread>
 #include <iostream>
+#include "esseltub.h"
 
 SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config& config) :
         display(display), site_id(config.site_id), update_seconds(config.update_seconds),
         direction(config.direction_code), mode(config.mode), sleep_times(config.sleep_times){
-    stop_status = departure_fetcher.fetch_departures(site_id, direction, mode);
+    display.setFont(esseltub);
 
+    stop_status = departure_fetcher.fetch_departures(site_id, direction, mode);
     last_update = std::chrono::steady_clock::now();
 }
 
-void SLDisplay::main_loop() {
+void SLDisplay::start() {
     display.clearBuffer();
     display.clearDisplay();
 
@@ -93,9 +95,9 @@ void SLDisplay::draw_deviations(int start_x, std::vector<std::string> &deviation
     }
 }
 
-int SLDisplay::get_scroll_start_position(int position) {
+int SLDisplay::get_scroll_start_position(int index) {
     // Add 1 width so they start off-screen
-    return position * (display.getWidth() + scroll_gap_px) + display.getWidth();
+    return index * (display.getWidth() + scroll_gap_px) + display.getWidth();
 }
 
 int SLDisplay::get_total_scroll_size(int n_departures, std::vector<std::string> &deviations) {

@@ -19,4 +19,24 @@ namespace SL {
         else
             return std::nullopt;
     }
+
+    std::string mode_to_string(Mode& m) {
+        switch (m) {
+            case Mode::BUS:
+                return "BUS";
+            case Mode::TRAM:
+                return "TRAM";
+            case Mode::METRO:
+                return "METRO";
+            case Mode::TRAIN:
+                return "TRAIN";
+            case Mode::FERRY:
+                return "FERRY";
+            case Mode::SHIP:
+                return "SHIP";
+            case Mode::TAXI:
+                return "TAXI";
+        }
+        return "";
+    }
 }

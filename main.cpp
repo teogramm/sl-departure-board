@@ -16,12 +16,11 @@ int main(int argc, char** argv) {
     };
     pi.begin();
     pi.setFlipMode(1);
-    pi.setFont(esseltub);
 
     auto config = Argparser::parse_arguments(argc, argv);
 
     auto display = SLDisplay(pi, config);
-    display.main_loop();
+    display.start();
 
     return 0;
 }
