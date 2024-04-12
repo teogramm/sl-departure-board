@@ -10,6 +10,7 @@
 #include <utility>
 #include <sl/Data.h>
 #include <sl/DepartureFetcher.h>
+#include <cmath>
 
 class SLDisplay {
 public:
@@ -42,8 +43,32 @@ private:
     SL::DepartureFetcher departure_fetcher;
     U8G2 &display;
 
-    static constexpr int scroll_gap_px = 40;
-    static constexpr int fps = 24;
+    static constexpr int scroll_gap_px = 25;
+    static constexpr int fps = 30;
+    using frame_duration = std::chrono::duration<int64_t, std::ratio<1, fps>>;
+
+    /**
+     * Time it takes from a pixel to scroll from one side of the screen to the other.
+     * About 2.4 seconds in SL displays.
+     */
+    static constexpr auto scroll_duration = std::chrono::milliseconds(2400);
+
+    /**
+      * Calculate the number of pixels the display should scroll each frame.
+      * @return number of pixels per frame, rounded down to nearest integer
+      */
+    inline int scroll_px_per_frame() {
+        using namespace std::chrono;
+        // Express duration as float number of seconds
+        using f_seconds = duration<float>;
+        // px/f = width_px/scroll_s * s/frame
+        auto pixels_per_second =
+                static_cast<float>(display.getWidth()) / duration_cast<f_seconds>(scroll_duration).count();
+        auto seconds_per_frame = duration_cast<f_seconds>(frame_duration(1)).count();
+        // Round down, better for the sign to be faster than slower
+        return std::floor(pixels_per_second * seconds_per_frame);
+    };
+
 
     std::optional<std::tuple<std::string, std::string>> sleep_times;
     int site_id;

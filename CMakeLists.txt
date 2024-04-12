@@ -31,8 +31,9 @@ FetchContent_MakeAvailable(tclap)
 
 add_subdirectory(libsl)
 
-file(GLOB SOURCES "src/*.cpp" "src/*.c")
+set(CMAKE_CXX_STANDARD 20)
 
+file(GLOB SOURCES "src/*.cpp" "src/*.c")
 add_executable(sl_pi_cpp main.cpp ${SOURCES} include/U8G2_SSD1322_NHD_256X64_F_8080_RPi.h)
 target_include_directories(sl_pi_cpp PRIVATE include)
 target_link_libraries(sl_pi_cpp PRIVATE  u8g2 wiringPi sl TCLAP)

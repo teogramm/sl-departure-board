@@ -17,8 +17,7 @@ void SLDisplay::main_loop() {
     display.clearBuffer();
     display.clearDisplay();
 
-    using frames = std::chrono::duration<int64_t, std::ratio<1, fps>>;
-    auto nextFrame = std::chrono::system_clock::now() + frames{0};
+    auto nextFrame = std::chrono::system_clock::now() + frame_duration{0};
 
     int total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
 
@@ -75,11 +74,12 @@ void SLDisplay::main_loop() {
             auto start_x = get_scroll_start_position(rest_departures.size());
             draw_deviations(start_x - x, deviations);
         }
-        // TODO: Change scroll step based on fps
+        // Add display_width so the text scrolls off the screen
+        // Don't use scroll_px_per_frame because it results in too much jitter.
         x = (x + 3) % (total_scroll_size +display.getWidth());
         display.updateDisplay();
 
-        nextFrame += frames{1};
+        nextFrame += frame_duration{1};
         std::this_thread::sleep_until(nextFrame);
     }
 }
