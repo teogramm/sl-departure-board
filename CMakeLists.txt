@@ -24,7 +24,7 @@ set(TCLAP_VERSION 1.4.0-rc1)
 message(STATUS "Getting TCLAP")
 FetchContent_Declare(
         tclap
-        GIT_REPOSITORY https://git.code.sf.net/p/tclap/code tclap-code
+        GIT_REPOSITORY https://git.code.sf.net/p/tclap/code
         GIT_TAG 1.4
 )
 FetchContent_MakeAvailable(tclap)
