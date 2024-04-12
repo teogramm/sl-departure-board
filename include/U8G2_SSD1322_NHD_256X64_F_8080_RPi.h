@@ -13,6 +13,9 @@
  */
 class U8G2_SSD1322_NHD_256X64_F_8080_RPI : public U8G2 {
 public:
+    /**
+     * Pins follow WiringPi numbering
+     */
     U8G2_SSD1322_NHD_256X64_F_8080_RPI(const u8g2_cb_t *rotation, uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
                                        uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t rw, uint8_t cs,
                                        uint8_t dc, uint8_t reset = U8X8_PIN_NONE) : U8G2() {
