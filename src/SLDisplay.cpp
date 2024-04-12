@@ -6,9 +6,9 @@
 #include <iostream>
 #include "esseltub.h"
 
-SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config& config) :
+SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config &config) :
         display(display), site_id(config.site_id), update_seconds(config.update_seconds),
-        direction(config.direction_code), mode(config.mode), sleep_times(config.sleep_times){
+        direction(config.direction_code), mode(config.mode), sleep_times(config.sleep_times) {
     display.setFont(esseltub);
 
     stop_status = departure_fetcher.fetch_departures(site_id, direction, mode);
@@ -29,9 +29,9 @@ void SLDisplay::start() {
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_update).count() >
             update_seconds && !update_dispatched) {
             // Check if we need to sleep
-            if(should_sleep()){
+            if (should_sleep()) {
                 display.clearDisplay();
-                display.drawUTF8(0,20, "Sleeping");
+                display.drawUTF8(0, 20, "Sleeping");
                 display.updateDisplay();
                 display.setPowerSave(true);
                 std::this_thread::sleep_for(std::chrono::minutes(5));
@@ -56,29 +56,29 @@ void SLDisplay::start() {
             auto top_departure = stop_status.departures.front();
             // Render top departure
             draw_departure(top_departure, 0, 20);
-        }
-        // Render scrolling text
-        auto rest_departures = std::vector(std::next(stop_status.departures.begin()), stop_status.departures.end());
-        if (!rest_departures.empty()) {
-            // Each departure spans from 0 + x*gap
-            for (int i = 0; i < rest_departures.size(); i++) {
-                auto cur_dep = rest_departures.at(i);
-                auto start_x = get_scroll_start_position(i);
-                draw_departure(cur_dep, start_x - x, 40);
+            // Render scrolling text
+            auto rest_departures = std::vector(stop_status.departures.begin() + 1, stop_status.departures.end());
+            if (!rest_departures.empty()) {
+                // Each departure spans from 0 + x*gap
+                for (int i = 0; i < rest_departures.size(); i++) {
+                    auto cur_dep = rest_departures.at(i);
+                    auto start_x = get_scroll_start_position(i);
+                    draw_departure(cur_dep, start_x - x, 40);
+                }
             }
-        }
-        // TODO: Support more than one deviations
-        auto deviations = stop_status.deviations;
-        if (!deviations.empty()) {
-            // After the latest scroll departure add one gap and draw deviation
-            // Scroll positions range from 0 to i-1, so the deviations appear in the position another departure would
-            // appear.
-            auto start_x = get_scroll_start_position(rest_departures.size());
-            draw_deviations(start_x - x, deviations);
+            // TODO: Support more than one deviations
+            auto deviations = stop_status.deviations;
+            if (!deviations.empty()) {
+                // After the latest scroll departure add one gap and draw deviation
+                // Scroll positions range from 0 to i-1, so the deviations appear in the position another departure would
+                // appear.
+                auto start_x = get_scroll_start_position(rest_departures.size());
+                draw_deviations(start_x - x, deviations);
+            }
         }
         // Add display_width so the text scrolls off the screen
         // Don't use scroll_px_per_frame because it results in too much jitter.
-        x = (x + 3) % (total_scroll_size +display.getWidth());
+        x = (x + 3) % (total_scroll_size + display.getWidth());
         display.updateDisplay();
 
         nextFrame += frame_duration{1};
@@ -134,14 +134,14 @@ void SLDisplay::update_data() {
 }
 
 bool SLDisplay::should_sleep() {
-    if(sleep_times) {
+    if (sleep_times) {
         auto now = time(nullptr);
         auto *local = localtime(&now);
         char buff[sizeof("hh:mm")];
         strftime(buff, sizeof(buff), "%H:%M", local);
         auto now_str = std::string(buff);
         return (now_str >= std::get<0>(sleep_times.value())) && (now_str <= std::get<1>(sleep_times.value()));
-    }else
+    } else
         return false;
 }
 
