@@ -9,7 +9,6 @@
 #include <string_view>
 #include <utility>
 #include <sl/Data.h>
-#include <sl/DepartureFetcher.h>
 #include <cmath>
 
 /**
@@ -62,7 +61,7 @@ public:
      * @param display u8g2 object for the display. It must be already initialised by calling begin.
      * @param config For detailed information see SLDisplay::Config documentation.
      */
-    SLDisplay(U8G2 &display, SLDisplay::Config &config);
+    SLDisplay(U8G2 &display, Config &config);
 
     /**
      * Starts displaying information on the display.
@@ -90,14 +89,14 @@ private:
       * Calculate the number of pixels the display should scroll each frame.
       * @return number of pixels per frame, rounded down to nearest integer
       */
-    inline int scroll_px_per_frame() {
+    int scroll_px_per_frame() const {
         using namespace std::chrono;
         // Express duration as float number of seconds
         using f_seconds = duration<float>;
         // px/f = width_px/scroll_s * s/frame
-        auto pixels_per_second =
+        const auto pixels_per_second =
                 static_cast<float>(display.getWidth()) / duration_cast<f_seconds>(scroll_duration).count();
-        auto seconds_per_frame = duration_cast<f_seconds>(frame_duration(1)).count();
+        constexpr auto seconds_per_frame = duration_cast<f_seconds>(frame_duration(1)).count();
         // Round down, better for the sign to be faster than slower
         return std::floor(pixels_per_second * seconds_per_frame);
     };
@@ -137,7 +136,7 @@ private:
      * @param x_pos Left edge of departure
      * @param y_pos Bottom left corner of departure
      */
-    void draw_departure(SL::Departure &departure, int x_pos, int y_pos);
+    void draw_departure(SL::Departure &departure, int x_pos, int y_pos) const;
 
     /**
      * Queues a data update.

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <optional>
 #include <nlohmann/json.hpp>
 
 #include "DepartureFetcher.h"
@@ -13,8 +12,6 @@ SL::DepartureFetcher::DepartureFetcher() {
 cpr::Session SL::DepartureFetcher::create_session() {
     auto session = cpr::Session();
     session.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
-    // TODO: Fix this
-    session.SetVerifySsl(false);
     return session;
 }
 

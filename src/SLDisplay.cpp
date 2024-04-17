@@ -3,7 +3,6 @@
 #include <chrono>
 #include <ctime>
 #include <thread>
-#include <iostream>
 #include "esseltub.h"
 
 SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config &config) :
@@ -117,7 +116,7 @@ std::string SLDisplay::line_and_dest_string(SL::Departure &departure) {
     return str;
 }
 
-void SLDisplay::draw_departure(SL::Departure &departure, int x_pos, int y_pos) {
+void SLDisplay::draw_departure(SL::Departure &departure, int x_pos, int y_pos) const {
     auto line_and_dest = line_and_dest_string(departure);
     display.drawUTF8(x_pos, y_pos, line_and_dest.c_str());
     display.drawUTF8(x_pos + display.getWidth() - display.getStrWidth(departure.arrival.c_str()),
@@ -141,7 +140,7 @@ bool SLDisplay::should_sleep() {
         strftime(buff, sizeof(buff), "%H:%M", local);
         auto now_str = std::string(buff);
         return (now_str >= std::get<0>(sleep_times.value())) && (now_str <= std::get<1>(sleep_times.value()));
-    } else
-        return false;
+    }
+    return false;
 }
 

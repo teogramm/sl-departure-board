@@ -1,7 +1,6 @@
 #ifndef SL_DATA_H
 #define SL_DATA_H
 
-#include <cpr/cpr.h>
 #include <string>
 #include <vector>
 #include <optional>

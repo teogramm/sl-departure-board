@@ -1,7 +1,9 @@
 
 #ifndef DEPARTUREFETCHER_H
 #define DEPARTUREFETCHER_H
+
 #include <string>
+#include <optional>
 #include <cpr/cpr.h>
 #include "Data.h"
 
