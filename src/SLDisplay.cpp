@@ -14,6 +14,11 @@ SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config &config) :
     last_update = std::chrono::steady_clock::now();
 }
 
+SLDisplay::~SLDisplay() noexcept {
+    // Clear the display and buffer
+    this->display.clear();
+}
+
 void SLDisplay::start() {
     display.clearBuffer();
     display.clearDisplay();

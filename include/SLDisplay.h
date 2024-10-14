@@ -63,6 +63,8 @@ public:
      */
     SLDisplay(U8G2 &display, Config &config);
 
+    ~SLDisplay() noexcept;
+
     /**
      * Starts displaying information on the display.
      */
@@ -75,7 +77,7 @@ private:
     /**
      * Pixels between consecutive entries at the scrolling list.
      */
-    static constexpr int scroll_gap_px = 25;
+    static constexpr int scroll_gap_px = 12;
     static constexpr int fps = 30;
     using frame_duration = std::chrono::duration<int64_t, std::ratio<1, fps>>;
 
