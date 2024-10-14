@@ -17,10 +17,9 @@ namespace SL {
 
         cpr::Session session;
         /**
-         * Creates a Session object for fetching departures.
-         * @return cpr::Session with any required headers set
+         * Set the necessary parameters in the session object.
          */
-        static cpr::Session create_session();
+        void setup_session();
         /**
          * Convert json
          * @param response JSON response as string

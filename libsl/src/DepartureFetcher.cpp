@@ -6,13 +6,11 @@
 using json = nlohmann::json;
 
 SL::DepartureFetcher::DepartureFetcher() {
-    this->session = create_session();
+    setup_session();
 }
 
-cpr::Session SL::DepartureFetcher::create_session() {
-    auto session = cpr::Session();
+void SL::DepartureFetcher::setup_session() {
     session.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
-    return session;
 }
 
 SL::StopStatus
