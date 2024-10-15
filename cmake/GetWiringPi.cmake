@@ -9,6 +9,7 @@ FetchContent_Declare(
         GIT_TAG ${WPI_VERSION}
         PATCH_COMMAND ${wpi_patch}
         UPDATE_DISCONNECTED 1
+        EXCLUDE_FROM_ALL
 )
 FetchContent_Populate(wiringPi)
 
