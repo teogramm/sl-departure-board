@@ -10,7 +10,7 @@ struct SL::DepartureFetcher::impl{
     cpr::Session session;
 };
 
-SL::DepartureFetcher::DepartureFetcher() {
+SL::DepartureFetcher::DepartureFetcher(): pimpl(std::make_unique<impl>()) { // pimpl must be manually initialised
     setup_session();
 }
 
