@@ -4,7 +4,7 @@
 
 #include <string>
 #include <optional>
-#include <cpr/cpr.h>
+#include <memory>
 #include "Data.h"
 
 namespace SL {
@@ -15,7 +15,9 @@ namespace SL {
     private:
         static constexpr char REQUEST_URL[] = "https://transport.integration.sl.se/v1/sites/{}/departures";
 
-        cpr::Session session;
+        struct impl;
+        std::unique_ptr<impl> pimpl;
+
         /**
          * Set the necessary parameters in the session object.
          */
@@ -45,6 +47,10 @@ namespace SL {
          * @param mode Keep only departures for the specified mode.
          */
         StopStatus fetch_departures(int siteId, std::optional<int> direction, std::optional<Mode> mode);
+
+        // https://chrizog.com/cpp-pimpl-unique-ptr-incomplete-types-default-constructor
+        // Required to use pimpl with unique_ptr
+        ~DepartureFetcher();
     };
 }
 #endif //DEPARTUREFETCHER_H

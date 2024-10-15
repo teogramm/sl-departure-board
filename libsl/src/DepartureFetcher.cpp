@@ -1,16 +1,23 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <cpr/cpr.h>
 
 #include "DepartureFetcher.h"
 
 using json = nlohmann::json;
 
+struct SL::DepartureFetcher::impl{
+    cpr::Session session;
+};
+
 SL::DepartureFetcher::DepartureFetcher() {
     setup_session();
 }
 
+SL::DepartureFetcher::~DepartureFetcher() = default;
+
 void SL::DepartureFetcher::setup_session() {
-    session.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
+    pimpl->session.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
 }
 
 SL::StopStatus
@@ -27,9 +34,9 @@ SL::DepartureFetcher::fetch_departures(int siteId, std::optional<int> direction,
         params.Add(cpr::Parameter("direction", dir_str));
     }
     auto url = cpr::Url(urlStr);
-    session.SetUrl(url);
-    session.SetParameters(params);
-    auto r = session.Get();
+    pimpl->session.SetUrl(url);
+    pimpl->session.SetParameters(params);
+    auto r = pimpl->session.Get();
     if(r.status_code != cpr::status::HTTP_OK){
         std::cerr << "Error: " <<  r.status_code << " " << r.error.message;
         return StopStatus({}, {});
