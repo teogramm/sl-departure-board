@@ -66,14 +66,22 @@ public:
     ~SLDisplay() noexcept;
 
     /**
-     * Starts displaying information on the display.
+     * Starts displaying information on the display and returns execution to the caller.
      */
     void start();
+
+    /**
+     * Stops displaying information on the display.
+     */
+    void stop();
 
 private:
     SL::DepartureFetcher departure_fetcher;
     U8G2 &display;
     Config config;
+    std::thread loop_thread;
+
+    void loop();
 
     /**
      * Pixels between consecutive entries at the scrolling list.
@@ -116,6 +124,11 @@ private:
      * is only updated after the data has been inserted.
      */
     std::atomic_bool update_dispatched;
+
+    /**
+     * Indicates whether the display is currently operating. Used to communicate with the looping thread.
+     */
+    std::atomic_bool running = false;
 
     /**
      * Draw the given departure at the given position.

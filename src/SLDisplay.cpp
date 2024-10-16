@@ -20,15 +20,19 @@ SLDisplay::~SLDisplay() noexcept {
 }
 
 void SLDisplay::start() {
+    this->running = true;
+    this->loop_thread = std::thread(&SLDisplay::loop, this);
+}
+
+void SLDisplay::loop(){
     display.clearBuffer();
     display.clearDisplay();
 
     auto nextFrame = std::chrono::system_clock::now() + frame_duration{0};
-
     int total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
 
     int x = 0;
-    while (true) {
+    while (running) {
         // Check if we need to update, ensure we do not have an update already pending
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_update).count() >
             config.update_seconds && !update_dispatched) {
@@ -88,6 +92,16 @@ void SLDisplay::start() {
         nextFrame += frame_duration{1};
         std::this_thread::sleep_until(nextFrame);
     }
+}
+
+void SLDisplay::stop() {
+    // Notify the thread to stop
+    this->running = false;
+    // Wait for it to exit
+    this->loop_thread.join();
+    // Clear the display and buffer
+    this->display.clear();
+    //
 }
 
 void SLDisplay::draw_deviations(int start_x, std::vector<std::string> &deviations) {
