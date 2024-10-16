@@ -73,6 +73,7 @@ public:
 private:
     SL::DepartureFetcher departure_fetcher;
     U8G2 &display;
+    Config config;
 
     /**
      * Pixels between consecutive entries at the scrolling list.
@@ -103,19 +104,6 @@ private:
         return std::floor(pixels_per_second * seconds_per_frame);
     };
 
-
-    /**
-     * Two time strings of format XX:XX. The first indicated the sleep starting time, the second sleep ending time.
-     */
-    std::optional<std::tuple<std::string, std::string>> sleep_times;
-    int site_id;
-    /**
-     * Time interval between updates
-     */
-    int update_seconds;
-
-    std::optional<int> direction;
-    std::optional<SL::Mode> mode;
 
     SL::StopStatus stop_status; /**< The information that is currently displayed. */
     std::future<SL::StopStatus> new_stop_status; /**< Data fetched from an update */

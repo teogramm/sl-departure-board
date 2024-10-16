@@ -6,11 +6,11 @@
 #include "esseltub.h"
 
 SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config &config) :
-        display(display), site_id(config.site_id), update_seconds(config.update_seconds),
-        direction(config.direction_code), mode(config.mode), sleep_times(config.sleep_times) {
+        config(config),
+        display(display) {
     display.setFont(esseltub);
 
-    stop_status = departure_fetcher.fetch_departures(site_id, direction, mode);
+    stop_status = departure_fetcher.fetch_departures(config.site_id, config.direction_code, config.mode);
     last_update = std::chrono::steady_clock::now();
 }
 
@@ -31,7 +31,7 @@ void SLDisplay::start() {
     while (true) {
         // Check if we need to update, ensure we do not have an update already pending
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_update).count() >
-            update_seconds && !update_dispatched) {
+            config.update_seconds && !update_dispatched) {
             // Check if we need to sleep
             if (should_sleep()) {
                 display.clearDisplay();
@@ -132,19 +132,20 @@ void SLDisplay::update_data() {
     new_stop_status =
             std::async(std::launch::async,
                        [this]() {
-                           return this->departure_fetcher.fetch_departures(this->site_id, this->direction, this->mode);
+                           return this->departure_fetcher.fetch_departures(this->config.site_id, this->config.direction_code,
+                                                                           this->config.mode);
                        });
     update_dispatched = true;
 }
 
 bool SLDisplay::should_sleep() {
-    if (sleep_times) {
+    if (config.sleep_times) {
         auto now = time(nullptr);
         auto *local = localtime(&now);
         char buff[sizeof("hh:mm")];
         strftime(buff, sizeof(buff), "%H:%M", local);
         auto now_str = std::string(buff);
-        return (now_str >= std::get<0>(sleep_times.value())) && (now_str <= std::get<1>(sleep_times.value()));
+        return (now_str >= std::get<0>(config.sleep_times.value())) && (now_str <= std::get<1>(config.sleep_times.value()));
     }
     return false;
 }
