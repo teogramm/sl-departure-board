@@ -10,6 +10,7 @@
 #include <utility>
 #include <sl/Data.h>
 #include <cmath>
+#include <ranges>
 
 /**
  * SL Departure board with a u8g2 display.

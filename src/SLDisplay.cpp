@@ -24,15 +24,14 @@ void SLDisplay::start() {
     this->loop_thread = std::thread(&SLDisplay::loop, this);
 }
 
-void SLDisplay::loop(){
+void SLDisplay::loop() {
     display.clearBuffer();
     display.clearDisplay();
 
     auto nextFrame = std::chrono::system_clock::now() + frame_duration{0};
-    int total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
 
+    int total_scroll_size = 0;
     int x = 0;
-    auto rest_departures = std::vector<SL::Departure>{};
     while (running) {
         // Check if we need to update, ensure we do not have an update already pending
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_update).count() >
@@ -57,7 +56,6 @@ void SLDisplay::loop(){
             // Reset the screen
             total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
             x = 0;
-            rest_departures = std::vector(stop_status.departures.begin() + 1, stop_status.departures.end());
         }
 
         display.clearBuffer();
@@ -66,18 +64,16 @@ void SLDisplay::loop(){
             // Render top departure
             draw_departure(top_departure, 0, 20);
             // Render scrolling text
-            if (!rest_departures.empty()) {
-                // Each departure spans from 0 + x*gap
-                for (int i = 0; i < rest_departures.size(); i++) {
-                    auto cur_dep = rest_departures.at(i);
-                    auto start_x = get_scroll_start_position(i);
-                    auto x_pos = start_x - x;
-                    // Skip drawing departures which are outside the screen (saves 3% CPU usage)
-                    if(x_pos < display.getWidth() || x_pos < 0)
-                        draw_departure(cur_dep, x_pos, y_pos);
-                    else
-                        break;
-                }
+            // Each departure spans from 0 + x*gap
+            for (int i = 1; i < stop_status.departures.size(); i++) {
+                auto cur_dep = stop_status.departures.at(i);
+                auto start_x = get_scroll_start_position(i - 1);
+                auto x_pos = start_x - x;
+                // Skip drawing departures which are outside the screen (saves 3% CPU usage)
+                if (x_pos < display.getWidth() && x_pos > -display.getWidth())
+                    draw_departure(cur_dep, x_pos, y_pos);
+//                else
+//                    break;
             }
             // TODO: Support more than one deviations
             auto deviations = stop_status.deviations;
@@ -85,7 +81,7 @@ void SLDisplay::loop(){
                 // After the latest scroll departure add one gap and draw deviation
                 // Scroll positions range from 0 to i-1, so the deviations appear in the position another departure would
                 // appear.
-                auto start_x = get_scroll_start_position(rest_departures.size());
+                auto start_x = get_scroll_start_position(stop_status.departures.size() - 1);
                 draw_deviations(start_x - x, deviations);
             }
         }
@@ -108,7 +104,7 @@ void SLDisplay::stop() {
     this->display.clear();
 }
 
-void SLDisplay::consume_update(){
+void SLDisplay::consume_update() {
     stop_status = new_stop_status.get();
     update_dispatched = false;
     last_update = std::chrono::steady_clock::now();
@@ -156,7 +152,8 @@ void SLDisplay::update_data() {
     new_stop_status =
             std::async(std::launch::async,
                        [this]() {
-                           return this->departure_fetcher.fetch_departures(this->config.site_id, this->config.direction_code,
+                           return this->departure_fetcher.fetch_departures(this->config.site_id,
+                                                                           this->config.direction_code,
                                                                            this->config.mode);
                        });
     update_dispatched = true;
@@ -169,7 +166,8 @@ bool SLDisplay::should_sleep() {
         char buff[sizeof("hh:mm")];
         strftime(buff, sizeof(buff), "%H:%M", local);
         auto now_str = std::string(buff);
-        return (now_str >= std::get<0>(config.sleep_times.value())) && (now_str <= std::get<1>(config.sleep_times.value()));
+        return (now_str >= std::get<0>(config.sleep_times.value())) &&
+               (now_str <= std::get<1>(config.sleep_times.value()));
     }
     return false;
 }
