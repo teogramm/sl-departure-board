@@ -87,6 +87,7 @@ private:
      * Pixels between consecutive entries at the scrolling list.
      */
     static constexpr int scroll_gap_px = 12;
+    static constexpr int y_pos = 40;
     static constexpr int fps = 30;
     using frame_duration = std::chrono::duration<int64_t, std::ratio<1, fps>>;
 
@@ -178,6 +179,8 @@ private:
      * The normal gap is left between them.
      */
     void draw_deviations(int start_x, std::vector<std::string> &deviations);
+
+    void consume_update();
 };
 
 #endif //WIRINGPI_SLDISPLAY_H

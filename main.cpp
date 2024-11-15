@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
     pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
 
     int32_t last_signal;
+    // Wait until we receive a signal and cleanup the display
     sigwait(&sigset, &last_signal);
 
     display.stop();

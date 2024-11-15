@@ -10,8 +10,8 @@ SLDisplay::SLDisplay(U8G2 &display, SLDisplay::Config &config) :
         display(display) {
     display.setFont(esseltub);
 
-    stop_status = departure_fetcher.fetch_departures(config.site_id, config.direction_code, config.mode);
-    last_update = std::chrono::steady_clock::now();
+    // Make sure we update when we start
+    last_update = std::chrono::steady_clock::now() - std::chrono::minutes(5);
 }
 
 SLDisplay::~SLDisplay() noexcept {
@@ -32,6 +32,7 @@ void SLDisplay::loop(){
     int total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
 
     int x = 0;
+    auto rest_departures = std::vector<SL::Departure>{};
     while (running) {
         // Check if we need to update, ensure we do not have an update already pending
         if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - last_update).count() >
@@ -52,11 +53,11 @@ void SLDisplay::loop(){
 
         // Check if an update is ready to be consumed
         if (update_dispatched && new_stop_status.wait_for(std::chrono::seconds::zero()) == std::future_status::ready) {
-            stop_status = new_stop_status.get();
-            update_dispatched = false;
-            last_update = std::chrono::steady_clock::now();
+            consume_update();
+            // Reset the screen
             total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
             x = 0;
+            rest_departures = std::vector(stop_status.departures.begin() + 1, stop_status.departures.end());
         }
 
         display.clearBuffer();
@@ -65,13 +66,17 @@ void SLDisplay::loop(){
             // Render top departure
             draw_departure(top_departure, 0, 20);
             // Render scrolling text
-            auto rest_departures = std::vector(stop_status.departures.begin() + 1, stop_status.departures.end());
             if (!rest_departures.empty()) {
                 // Each departure spans from 0 + x*gap
                 for (int i = 0; i < rest_departures.size(); i++) {
                     auto cur_dep = rest_departures.at(i);
                     auto start_x = get_scroll_start_position(i);
-                    draw_departure(cur_dep, start_x - x, 40);
+                    auto x_pos = start_x - x;
+                    // Skip drawing departures which are outside the screen (saves 3% CPU usage)
+                    if(x_pos < display.getWidth() || x_pos < 0)
+                        draw_departure(cur_dep, x_pos, y_pos);
+                    else
+                        break;
                 }
             }
             // TODO: Support more than one deviations
@@ -101,13 +106,18 @@ void SLDisplay::stop() {
     this->loop_thread.join();
     // Clear the display and buffer
     this->display.clear();
-    //
+}
+
+void SLDisplay::consume_update(){
+    stop_status = new_stop_status.get();
+    update_dispatched = false;
+    last_update = std::chrono::steady_clock::now();
 }
 
 void SLDisplay::draw_deviations(int start_x, std::vector<std::string> &deviations) {
     auto curr_pos = start_x;
     for (const auto &deviation: deviations) {
-        auto text_width = display.drawUTF8(curr_pos, 40, deviation.c_str());
+        auto text_width = display.drawUTF8(curr_pos, y_pos, deviation.c_str());
         // Add a gap after subsequent deviations
         curr_pos += text_width + scroll_gap_px;
     }
