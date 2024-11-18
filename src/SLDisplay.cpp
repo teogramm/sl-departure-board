@@ -30,6 +30,7 @@ void SLDisplay::loop() {
 
     auto nextFrame = std::chrono::system_clock::now() + frame_duration{0};
 
+    int px_per_frame = scroll_px_per_frame();
     int total_scroll_size = 0;
     int x = 0;
     while (running) {
@@ -47,47 +48,30 @@ void SLDisplay::loop() {
                 continue;
             }
             auto time = std::chrono::local_seconds();
-            update_data();
+            fetch_update();
         }
 
         // Check if an update is ready to be consumed
         if (update_dispatched && new_stop_status.wait_for(std::chrono::seconds::zero()) == std::future_status::ready) {
             consume_update();
             // Reset the screen
-            total_scroll_size = get_total_scroll_size(stop_status.departures.size() - 1, stop_status.deviations);
+            total_scroll_size = get_total_scroll_size(stop_status.deviations);
             x = 0;
         }
 
+        // Prevents artifacts
         display.clearBuffer();
         if (!stop_status.departures.empty()) {
             auto top_departure = stop_status.departures.front();
             // Render top departure
-            draw_departure(top_departure, 0, 20);
-            // Render scrolling text
-            // Each departure spans from 0 + x*gap
-            for (int i = 1; i < stop_status.departures.size(); i++) {
-                auto cur_dep = stop_status.departures.at(i);
-                auto start_x = get_scroll_start_position(i - 1);
-                auto x_pos = start_x - x;
-                // Skip drawing departures which are outside the screen (saves 3% CPU usage)
-                if (x_pos < display.getWidth() && x_pos > -display.getWidth())
-                    draw_departure(cur_dep, x_pos, y_pos);
-//                else
-//                    break;
-            }
-            // TODO: Support more than one deviations
-            auto deviations = stop_status.deviations;
-            if (!deviations.empty()) {
-                // After the latest scroll departure add one gap and draw deviation
-                // Scroll positions range from 0 to i-1, so the deviations appear in the position another departure would
-                // appear.
-                auto start_x = get_scroll_start_position(stop_status.departures.size() - 1);
-                draw_deviations(start_x - x, deviations);
-            }
+            draw_departure(top_departure, 0, y_pos_top);
+            // Render scrolling text, remove a width so we start offscreen
+            // Remove a width from x, so the text starts off-screen to the right
+            draw_scroll(x - display.getWidth());
         }
         // Add display_width so the text scrolls off the screen
-        // Don't use scroll_px_per_frame because it results in too much jitter.
-        x = (x + 3) % (total_scroll_size + display.getWidth());
+        // x varies from 0 to total_scroll_size + display width to allow the text to scroll of the screen
+        x = (x + px_per_frame) % (total_scroll_size + display.getWidth());
         display.updateDisplay();
 
         nextFrame += frame_duration{1};
@@ -110,13 +94,30 @@ void SLDisplay::consume_update() {
     last_update = std::chrono::steady_clock::now();
 }
 
-void SLDisplay::draw_deviations(int start_x, std::vector<std::string> &deviations) {
+void SLDisplay::draw_scroll(int offset) {
+    // Start drawing the departures
+    int drawn_px = 0;
+    int x_pos = -offset;
+    // Keep drawing until we have drawn on the whole screen
+    // If we are about to draw a departrue
+    for (int i = 1; i < stop_status.departures.size() && x_pos < display.getWidth(); i++) {
+        auto cur_dep = stop_status.departures.at(i);
+        drawn_px += draw_scroll_departure(cur_dep, x_pos);
+        // Update the x position
+        x_pos = drawn_px - offset;
+    }
+    if (x_pos < display.getWidth())
+        draw_deviations(x_pos, stop_status.deviations);
+}
+
+int SLDisplay::draw_deviations(int start_x, std::vector<std::string> &deviations) {
     auto curr_pos = start_x;
-    for (const auto &deviation: deviations) {
-        auto text_width = display.drawUTF8(curr_pos, y_pos, deviation.c_str());
+    for (const auto &deviation: deviations){
+        auto text_width = display.drawUTF8(curr_pos, y_pos_scroll, deviation.c_str());
         // Add a gap after subsequent deviations
         curr_pos += text_width + scroll_gap_px;
     }
+    return curr_pos - start_x;
 }
 
 int SLDisplay::get_scroll_start_position(int index) {
@@ -124,10 +125,21 @@ int SLDisplay::get_scroll_start_position(int index) {
     return index * (display.getWidth() + scroll_gap_px) + display.getWidth();
 }
 
-int SLDisplay::get_total_scroll_size(int n_departures, std::vector<std::string> &deviations) {
+int SLDisplay::get_total_scroll_size(std::vector<std::string> &deviations) {
     int size = 0;
-    if (n_departures > 0)
-        size += display.getWidth() * n_departures + (n_departures - 1) * scroll_gap_px;
+    int space_width = display.getUTF8Width(" ");
+    auto n_departures = stop_status.departures.size() - 1;
+    if (n_departures > 0) {
+        // Add the static parts of each departure: 2 spaces between line and destination, 2 between destination and
+        // time and 5 after the departure
+        size += n_departures * space_width * 9;
+        // Add the dynamic parts of each departure
+        for (auto dep = stop_status.departures.begin() + 1; dep != stop_status.departures.end(); ++dep) {
+            size += display.getUTF8Width(dep->line.c_str());
+            size += display.getUTF8Width(dep->destination.c_str());
+            size += display.getUTF8Width(dep->arrival.c_str());
+        }
+    }
     for (const auto &deviation: deviations) {
         size += scroll_gap_px + display.getStrWidth(deviation.c_str());
     }
@@ -148,7 +160,15 @@ void SLDisplay::draw_departure(SL::Departure &departure, int x_pos, int y_pos) c
                      y_pos, departure.arrival.c_str());
 }
 
-void SLDisplay::update_data() {
+int SLDisplay::draw_scroll_departure(SL::Departure &departure, int x_pos) const {
+    int drawn_px = 0;
+    auto string = std::stringstream();
+    string << departure.line << "  " << departure.destination << "  " << departure.arrival << "     ";
+    drawn_px += display.drawUTF8(x_pos, y_pos_scroll, string.str().c_str());
+    return drawn_px;
+}
+
+void SLDisplay::fetch_update() {
     new_stop_status =
             std::async(std::launch::async,
                        [this]() {

@@ -1,3 +1,5 @@
+message(STATUS "Getting wiringPi")
+
 set(WPI_VERSION 3.10)
 
 FetchContent_Declare(

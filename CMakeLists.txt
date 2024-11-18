@@ -7,7 +7,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(BUILD_SHARED_LIBS OFF)
 #set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-include(cmake/GetWiringPi.cmake)
+find_package(WiringPi)
+if(NOT ${wiringPi_FOUND})
+    include(cmake/GetWiringPi.cmake)
+endif ()
 include(cmake/Getu8g2.cmake)
 include(cmake/GetTCLAP.cmake)
 

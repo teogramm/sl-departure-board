@@ -45,10 +45,7 @@ public:
 
         }
 
-        /**
-         * Default number of seconds between updates.
-         */
-        static constexpr int DEFAULT_UPDATE_SECONDS = 60;
+        static constexpr int DEFAULT_UPDATE_SECONDS = 60; /**< Default number of seconds between updates. */
 
         const int site_id;
         const std::optional<std::tuple<std::string, std::string>> sleep_times;
@@ -84,25 +81,22 @@ private:
 
     void loop();
 
-    /**
-     * Pixels between consecutive entries at the scrolling list.
-     */
-    static constexpr int scroll_gap_px = 12;
-    static constexpr int y_pos = 40;
+
+    static constexpr int scroll_gap_px = 12; /**< Pixels between consecutive entries at the scrolling list. */
+    static constexpr int y_pos_top = 20; /**< Bottom right corner y position for top departure */
+    static constexpr int y_pos_scroll = 40; /**< Bottom right corner y position for scrolling text */
     static constexpr int fps = 30;
     using frame_duration = std::chrono::duration<int64_t, std::ratio<1, fps>>;
 
-    /**
-     * Time it takes from a pixel to scroll from one side of the screen to the other.
-     * About 2.4 seconds in SL displays.
-     */
+     /** Time it takes from a pixel to scroll from one side of the screen to the other.
+     * About 2.4 seconds in SL displays. */
     static constexpr auto scroll_duration = std::chrono::milliseconds(2400);
 
     /**
       * Calculate the number of pixels the display should scroll each frame.
       * @return number of pixels per frame, rounded down to nearest integer
       */
-    int scroll_px_per_frame() const {
+    [[nodiscard]] int scroll_px_per_frame() const {
         using namespace std::chrono;
         // Express duration as float number of seconds
         using f_seconds = duration<float>;
@@ -144,9 +138,9 @@ private:
     void draw_departure(SL::Departure &departure, int x_pos, int y_pos) const;
 
     /**
-     * Queues a data update.
+     * Obtains updated data from the internet.
      */
-    void update_data();
+    void fetch_update();
 
     /**
      * Get the x coordinate for departure at the given index.
@@ -163,11 +157,10 @@ private:
     /**
      * Calculates the total size of the scrolling list.
      *
-     * @param n_departures Number of line departures in the scrolling list.
      * @param deviations List of deviations which are displayed.
      * @return
      */
-    int get_total_scroll_size(int n_departures, std::vector<std::string> &deviations);
+    int get_total_scroll_size(std::vector<std::string> &deviations);
 
     /**
      * Checks if the display should be asleep at the current time.
@@ -178,10 +171,29 @@ private:
      * Draws all the deviation starting at the given position.
      *
      * The normal gap is left between them.
+     * @param start_x Horizontal position
+     * @return Number of pixels drawn
      */
-    void draw_deviations(int start_x, std::vector<std::string> &deviations);
+    int draw_deviations(int start_x, std::vector<std::string> &deviations);
 
+    /**
+     * Updates the object after information has been fetched from an update.
+     */
     void consume_update();
+
+    /**
+     * Draws the scrolling portion of the sign, shifted to the left by the given number of pixels.
+     * @param offset Number of pixels to shit to the left
+     */
+    void draw_scroll(int offset);
+
+    /**
+     * Draws one departure on the scroll, at the given x position.
+     * @param departure Departure object to draw
+     * @param x_pos Horizontal position
+     * @return Number of pixels drawn
+     */
+    int draw_scroll_departure(SL::Departure &departure, int x_pos) const;
 };
 
 #endif //WIRINGPI_SLDISPLAY_H
