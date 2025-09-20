@@ -5,4 +5,7 @@ FetchContent_Declare(
         GIT_TAG 1.4
         EXCLUDE_FROM_ALL
 )
+set(BUILD_EXAMPLES OFF)
+set(BUILD_UNITTESTS OFF)
+set(BUILD_DOC)
 FetchContent_MakeAvailable(tclap)
