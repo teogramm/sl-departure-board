@@ -1,6 +1,6 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..c5bc9f0
+index 0000000..5335b4f
 --- /dev/null
 +++ b/CMakeLists.txt
 @@ -0,0 +1,39 @@
@@ -36,10 +36,31 @@ index 0000000..c5bc9f0
 +)
 +target_link_libraries(wiringPi ${CMAKE_THREAD_LIBS_INIT} m rt crypt)
 +
-+#write_basic_package_version_file(
-+#        ${CMAKE_CURRENT_BINARY_DIR}/wiringpi-config-version.cmake
-+#        COMPATIBILITY AnyNewerVersion
-+#)
++write_basic_package_version_file(
++        ${CMAKE_CURRENT_BINARY_DIR}/wiringpi-config-version.cmake
++        COMPATIBILITY AnyNewerVersion
++)
 +
 +install(TARGETS wiringPi EXPORT wiringPiTargets FILE_SET HEADERS)
-+install(EXPORT wiringPiTargets DESTINATION ${CMAKE_INSTALL_DATADIR}/wiringpi)
++install(EXPORT wiringPiTargets NAMESPACE wiringPi DESTINATION ${CMAKE_INSTALL_DATADIR}/wiringpi)
+diff --git a/wiringPi/wiringPi.c b/wiringPi/wiringPi.c
+index bc00369..6db9761 100644
+--- a/wiringPi/wiringPi.c
++++ b/wiringPi/wiringPi.c
+@@ -2181,11 +2181,11 @@ int digitalRead (int pin)
+         break;
+     }
+ 
+-    if (PI_MODEL_5 == RaspberryPiModel) {
+-      switch(gpio[2*pin] & RP1_STATUS_LEVEL_MASK) {
+-        default: // 11 or 00 not allowed, give LOW!
+-        case RP1_STATUS_LEVEL_LOW:  return LOW ;
+-        case RP1_STATUS_LEVEL_HIGH: return HIGH ;
++    if (ISRP1MODEL) {
++      if ((gpio[2*pin] & RP1_STATUS_LEVEL_MASK) == RP1_STATUS_LEVEL_HIGH) {
++        return HIGH;
++      } else { // 11 or 00 not allowed, give LOW!
++        return LOW;
+       }
+     } else {
+       if ((*(gpio + gpioToGPLEV [pin]) & (1 << (pin & 31))) != 0)
