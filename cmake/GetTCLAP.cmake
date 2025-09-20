@@ -7,5 +7,5 @@ FetchContent_Declare(
 )
 set(BUILD_EXAMPLES OFF)
 set(BUILD_UNITTESTS OFF)
-set(BUILD_DOC)
+set(BUILD_DOC OFF)
 FetchContent_MakeAvailable(tclap)
