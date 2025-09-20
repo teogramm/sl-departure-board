@@ -12,6 +12,7 @@ RUN apt-get update \
 ENV CC=aarch64-linux-gnu-gcc
 ENV CXX=aarch64-linux-gnu-g++
 ENV AR=aarch64-linux-gnu-ar
+
 ENV LD=aarch64-linux-gnu-ld
 
 RUN cd /opt/ && curl -LO http://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1.orig.tar.gz && tar -xzf zlib*.tar.gz && rm zlib*.tar.gz \
