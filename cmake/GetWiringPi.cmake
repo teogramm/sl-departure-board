@@ -1,6 +1,6 @@
 message(STATUS "Getting wiringPi")
 
-set(WPI_VERSION 3.10)
+set(WPI_VERSION 3.16)
 
 set(wiringPi_patch git apply ${CMAKE_SOURCE_DIR}/patches/wiringPi.patch || git apply ${CMAKE_SOURCE_DIR}/patches/wiringPi.patch -R --check)
 FetchContent_Declare(
