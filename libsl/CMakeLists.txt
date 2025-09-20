@@ -5,7 +5,11 @@ include(GNUInstallDirs)
 # Statically link to CPR and the other libraries, but not to curl or ssl
 set(BUILD_SHARED_LIBS OFF)
 
-set(CPR_USE_SYSTEM_CURL ON)
+find_package(CURL)
+if(CURL_FOUND)
+    message(STATUS "System curl found")
+    set(CPR_USE_SYSTEM_CURL ON)
+endif ()
 include(cmake/GetCpr.cmake)
 
 include(cmake/GetJson.cmake)
