@@ -28,7 +28,26 @@ jobs:
             cmake-cache-
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release
+        run: cmake --build ${{ github.workspace }}/build --config Release
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Executable
+          path:
+            ${{ github.workspace }}/build/sl_pi_cpp
+          retention-days: 5
+
+      - name: Create deb package
+        run: cpack --config ${{ github.workspace }}/build/CPackConfig.cmake -G DEB
+
+      - name: Upload deb package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Debian Package
+          path:
+            ${{github.workspace}}/sl-departure-board_*.deb
+          retention-days: 1
