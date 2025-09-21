@@ -17,10 +17,10 @@ The following instructions concern building the application. For information abo
 
 If you are building the program on the system you will be running it on, you can skip these steps.
 
-1. If you are cross-compiling, build the image from the provided Dockerfile e.g. by running
-   ```podman build -t linux-arm64 .```
-2. Generate the script for cross-compiling by running ```podman run --rm -it linux-arm64 > dockcross```
-3. Prepend the commands in the following section with ```./dockcross```
+1. If you are cross-compiling, download the provided docker image with
+```podman pull ghcr.io/teogramm/sl-pi-cpp-dev:latest```
+2. Prepend the commands in the following section with
+```podman run --rm -it -v $(pwd):/work ghcr.io/teogramm/sl-pi-cpp-dev:latest```
 
 ### Building
 
