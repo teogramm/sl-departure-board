@@ -33,6 +33,11 @@ jobs:
       - name: Build
         run: cmake --build ${{ github.workspace }}/build --config Release
 
+      - name: Check files in build directory
+        run: |
+          ls -la ${{ github.workspace }}/build
+          ls -la ${{ github.workspace }}
+
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
