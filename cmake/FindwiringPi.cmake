@@ -5,7 +5,7 @@ find_path(wiringPi_INCLUDE_DIRS NAMES wiringPi.h)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(wiringPi DEFAULT_MSG wiringPi_LIBRARY wiringPi_INCLUDE_DIRS)
 
-if(wiringPi_FOUND AND NOT TARGET wiringPi::wiringPi)
+if(wiringPi_LIBRARY AND NOT TARGET wiringPi::wiringPi)
     add_library(wiringPi::wiringPi UNKNOWN IMPORTED)
     set_target_properties(wiringPi::wiringPi PROPERTIES
             IMPORTED_LOCATION "${wiringPi_LIBRARY}"
