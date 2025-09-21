@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(sl_pi_cpp)
+project(sl_pi_cpp VERSION 0.9.0)
 
 include(FetchContent)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -27,8 +27,8 @@ target_include_directories(sl_pi_cpp PRIVATE include)
 target_link_libraries(sl_pi_cpp PRIVATE u8g2 wiringPi sl TCLAP)
 target_compile_features(sl_pi_cpp PUBLIC cxx_std_20)
 
-install(TARGETS sl_pi_cpp RUNTIME DESTINATION bin)
-include(CPack)
-
-#    target_compile_options(sl_pi_cpp PRIVATE -fsanitize=address)
-#    target_link_options(sl_pi_cpp PRIVATE -fsanitize=address)
+install(TARGETS sl_pi_cpp
+        RUNTIME
+            COMPONENT ${PROJECT_NAME}-Runtime
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
+include(Package)
