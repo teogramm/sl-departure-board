@@ -13,23 +13,16 @@ An attempt to replicate the SL departure boards using the U8G2 library.
 
 The following instructions concern building the application. For information about the hardware see [here](doc/hardware.md).
 
-### Cross-compilation setup
-
-If you are building the program on the system you will be running it on, you can skip these steps.
-
-1. If you are cross-compiling, download the provided docker image with
-```podman pull ghcr.io/teogramm/sl-pi-cpp-dev:latest```
-2. Prepend the commands in the following section with
-```podman run --rm -it -v $(pwd):/work ghcr.io/teogramm/sl-pi-cpp-dev:latest```
-
 ### Building
 
 The program is fully built on CMake and most dependencies are fetched automatically. If you are not using the Docker
 image, you might need to install some development libraries (such as ```curl-devel```).
 
-1. Run ```cmake -DCMAKE_BUILD_TYPE=Release -S . -B cmake-cross```
-2. Run ```cmake --build cmake-cross --target sl_pi_cpp```
-3. The program will be in ```cmake-cross/sl_pi_cpp```
+* If you are building on the system you will be running the program run ```make build```.
+
+* Otherwise, to cross compile for an arm64 system using Docker, run ```make cross-build```. 
+
+The program will be in ```cmake-cross/sl_pi_cpp```
 
 ## Usage
 
